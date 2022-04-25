@@ -1,6 +1,7 @@
 package de.paulbach.gatherer.resource;
 
 import de.paulbach.gatherer.model.MtgCard;
+import de.paulbach.gatherer.model.MtgDeck;
 import de.paulbach.gatherer.model.Response;
 import de.paulbach.gatherer.service.implementation.GathererServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +17,13 @@ import java.util.Map;
 @RequestMapping("/")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin("*") // for now
 public class GathererResource {
 
     private final GathererServiceImpl gathererService;
 
-    @PostMapping("add/{name}")
+    @PostMapping("addCard/{name}")
     public ResponseEntity<Response> addCard(@PathVariable("name") String name) {
-        log.info(name);
         MtgCard card = gathererService.add(name);
         return ResponseEntity.ok(
                 Response.builder()
@@ -35,4 +36,33 @@ public class GathererResource {
         );
 
     }
+
+    @GetMapping("getCard/{id}")
+    public ResponseEntity<Response> getCard(@PathVariable("id") Long id) {
+        MtgCard card = gathererService.get(id);
+        return ResponseEntity.ok(
+                Response.builder()
+                        .timeStamp(LocalDateTime.now())
+                        .message("Card read")
+                        .status(HttpStatus.OK)
+                        .statusCode(HttpStatus.OK.value())
+                        .data(Map.of("Card", card))
+                        .build()
+        );
+    }
+
+    @GetMapping("getDeck/{name}")
+    public ResponseEntity<Response> getDeck(@PathVariable("name") String name) {
+        MtgDeck deck = gathererService.getDeck(name);
+        return ResponseEntity.ok(
+                Response.builder()
+                        .timeStamp(LocalDateTime.now())
+                        .message("Deck read")
+                        .status(HttpStatus.OK)
+                        .statusCode(HttpStatus.OK.value())
+                        .data(Map.of("Deck", deck.getDeck(), "Name", deck.getName()))
+                        .build()
+        );
+    }
+
 }

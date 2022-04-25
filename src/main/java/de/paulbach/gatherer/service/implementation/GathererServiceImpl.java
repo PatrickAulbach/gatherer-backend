@@ -1,7 +1,9 @@
 package de.paulbach.gatherer.service.implementation;
 
 import de.paulbach.gatherer.model.MtgCard;
-import de.paulbach.gatherer.repository.GathererRepository;
+import de.paulbach.gatherer.model.MtgDeck;
+import de.paulbach.gatherer.repository.CardRepository;
+import de.paulbach.gatherer.repository.DeckRepository;
 import de.paulbach.gatherer.service.GathererService;
 import io.magicthegathering.javasdk.api.CardAPI;
 import io.magicthegathering.javasdk.resource.Card;
@@ -19,7 +21,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GathererServiceImpl implements GathererService {
 
-    private final GathererRepository gathererRepository;
+    private final CardRepository cardRepository;
+
+    private final DeckRepository deckRepository;
 
 
     @Override
@@ -36,11 +40,21 @@ public class GathererServiceImpl implements GathererService {
                 .text(card.getOriginalText())
                 .build();
 
-        return gathererRepository.save(mtgCard);
+        return cardRepository.save(mtgCard);
     }
 
     @Override
     public MtgCard get(Long id) {
-        return this.gathererRepository.getById(id);
+        return this.cardRepository.findById(id).get();
+    }
+
+    @Override
+    public MtgDeck addDeck(MtgDeck deck) {
+        return this.deckRepository.save(deck);
+    }
+
+    @Override
+    public MtgDeck getDeck(String name) {
+        return this.deckRepository.getById(name);
     }
 }

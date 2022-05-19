@@ -1,19 +1,17 @@
 package de.paulbach.gatherer.model;
 
-import io.magicthegathering.javasdk.resource.Card;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Table(name="mtg_card")
 public class MtgCard {
 
     @Id
@@ -35,5 +33,13 @@ public class MtgCard {
     @Getter
     @Setter
     private int multiverseId;
+
+    @Getter
+    @Setter
+    private String imageUrl;
+
+    @Getter
+    @Setter
+    private int quantity;
 
 }

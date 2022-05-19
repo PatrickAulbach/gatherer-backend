@@ -4,7 +4,7 @@ import de.paulbach.gatherer.model.MtgCard;
 import de.paulbach.gatherer.model.MtgDeck;
 import de.paulbach.gatherer.repository.CardRepository;
 import de.paulbach.gatherer.repository.DeckRepository;
-import de.paulbach.gatherer.service.GathererService;
+import de.paulbach.gatherer.service.CardService;
 import io.magicthegathering.javasdk.api.CardAPI;
 import io.magicthegathering.javasdk.resource.Card;
 import lombok.RequiredArgsConstructor;
@@ -19,18 +19,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class GathererServiceImpl implements GathererService {
+public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
 
-    private final DeckRepository deckRepository;
-
-
     @Override
-    public MtgCard add(String name) {
+    public MtgCard addCard(String name, int quantity) {
         List<Card> cards = CardAPI.getAllCards(List.of("name=" + name));
 
         Card card = cards.stream().filter(item -> item.getMultiverseid() != -1).collect(Collectors.toList()).get(0);
+        log.info(card.getName());
 
 
         MtgCard mtgCard = MtgCard.builder()
@@ -38,23 +36,15 @@ public class GathererServiceImpl implements GathererService {
                 .name(card.getName())
                 .multiverseId(card.getMultiverseid())
                 .text(card.getOriginalText())
+                .imageUrl(card.getImageUrl())
+                .quantity(quantity)
                 .build();
 
         return cardRepository.save(mtgCard);
     }
 
     @Override
-    public MtgCard get(Long id) {
+    public MtgCard getCard(Long id) {
         return this.cardRepository.findById(id).get();
-    }
-
-    @Override
-    public MtgDeck addDeck(MtgDeck deck) {
-        return this.deckRepository.save(deck);
-    }
-
-    @Override
-    public MtgDeck getDeck(String name) {
-        return this.deckRepository.getById(name);
     }
 }

@@ -1,11 +1,11 @@
-package de.paulbach.gatherer.resource;
+package de.paulbach.gatherer.controller;
 
 import de.paulbach.gatherer.model.MtgCard;
-import de.paulbach.gatherer.model.MtgDeck;
 import de.paulbach.gatherer.model.Response;
-import de.paulbach.gatherer.service.implementation.GathererServiceImpl;
+import de.paulbach.gatherer.service.CardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +18,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin("*") // for now
-public class GathererResource {
+public class CardController {
 
-    private final GathererServiceImpl gathererService;
+    @Autowired
+    private final CardService cardService;
 
-    @PostMapping("addCard/{name}")
-    public ResponseEntity<Response> addCard(@PathVariable("name") String name) {
-        MtgCard card = gathererService.add(name);
+    @PostMapping("addCard")
+    public ResponseEntity<Response> addCard(
+            @RequestParam(value = "name", required = true) String name,
+            @RequestParam(value = "quantity", required = false) int quantity) {
+        MtgCard card = cardService.addCard(name, quantity);
         return ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(LocalDateTime.now())
@@ -39,7 +42,7 @@ public class GathererResource {
 
     @GetMapping("getCard/{id}")
     public ResponseEntity<Response> getCard(@PathVariable("id") Long id) {
-        MtgCard card = gathererService.get(id);
+        MtgCard card = cardService.getCard(id);
         return ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(LocalDateTime.now())
@@ -47,20 +50,6 @@ public class GathererResource {
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .data(Map.of("Card", card))
-                        .build()
-        );
-    }
-
-    @GetMapping("getDeck/{name}")
-    public ResponseEntity<Response> getDeck(@PathVariable("name") String name) {
-        MtgDeck deck = gathererService.getDeck(name);
-        return ResponseEntity.ok(
-                Response.builder()
-                        .timeStamp(LocalDateTime.now())
-                        .message("Deck read")
-                        .status(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .data(Map.of("Deck", deck.getDeck(), "Name", deck.getName()))
                         .build()
         );
     }
